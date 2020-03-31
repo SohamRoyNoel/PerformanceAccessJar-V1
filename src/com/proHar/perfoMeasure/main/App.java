@@ -2,6 +2,7 @@ package com.proHar.perfoMeasure.main;
 
 import java.io.File;
 import java.io.IOException;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -14,6 +15,9 @@ import com.proHar.perfoMeasure.main.accessModules.AccessUtils;
 import com.proHar.perfoMeasure.main.databaseModules.AzureDataMigrationUtils;
 import com.proHar.perfoMeasure.main.reporting.ListFileUtils;
 import com.proHar.perfoMeasure.main.reporting.ReporterAgent;
+import com.proHar.perfoMeasure.main.ssmsModules.SSMSDataMigrationCredentials;
+import com.proHar.perfoMeasure.main.ssmsModules.SSMSDataMigrationUtils;
+import com.proHar.perfoMeasure.main.ssmsModules.SSMSUtils;
 
 /*
  * Performance Entry
@@ -21,7 +25,7 @@ import com.proHar.perfoMeasure.main.reporting.ReporterAgent;
 public class App {
 	//   public static void main(String[] args) { 
 
-	public void Performer(WebDriver driver, String Test_Scenario_Name, String ProjectName) {
+	public void Performer(WebDriver driver, String Test_Scenario_Name, String ProjectName, String mode) {
 		// DirecTory Allocations
 		String workingPath = System.getProperty("user.dir");
 		String getUserName = System.getProperty("user.name");
@@ -43,6 +47,7 @@ public class App {
 		 * */
 
 		int testCaseID = AccessUtils.setTestCaseName(Test_Scenario_Name,ProjectName);
+		int SSMStestCaseID = SSMSUtils.setTestCaseName(Test_Scenario_Name,ProjectName);
 
 		/*
 
@@ -51,6 +56,7 @@ public class App {
 		 *  If YES then return ID else INSERT Domain Name and return Current ID
 		 * */
 		int appname_id = AccessUtils.getApplicationID(base, testCaseID);
+		int SSMSappname_id = SSMSUtils.getApplicationID(base, SSMStestCaseID);
 
 		/*
 		 * Set the Page Name with new ID,
@@ -59,11 +65,23 @@ public class App {
 		 * */
 		String getCurrentURL = driver.getCurrentUrl();
 		int pager_id = AccessUtils.getPagerId(getCurrentURL, appname_id, testCaseID);
+		int SSMSpager_id = SSMSUtils.getPagerId(getCurrentURL, SSMSappname_id, SSMStestCaseID);
 
 		// Performance Methods
 		try {
-			ValueParser.ResourceAnalyser(driver, appname_id, pager_id, testCaseID);
-			ValueParser.NavigationAnalyser(driver, appname_id, pager_id, testCaseID);
+			if (mode=="A") {
+				ValueParser.ResourceAnalyser(driver, appname_id, pager_id, testCaseID);
+				ValueParser.NavigationAnalyser(driver, appname_id, pager_id, testCaseID);
+			} else if (mode=="S") {
+				ValueParser.ResourceAnalyser(driver, SSMSappname_id, SSMSpager_id, SSMStestCaseID);
+				ValueParser.NavigationAnalyser(driver, SSMSappname_id, SSMSpager_id, SSMStestCaseID);
+			} else if(mode=="SA") {
+				ValueParser.ResourceAnalyser(driver, appname_id, pager_id, testCaseID);
+				ValueParser.NavigationAnalyser(driver, appname_id, pager_id, testCaseID);
+			}
+			
+			
+			
 		} catch (InterruptedException e) {   
 			e.printStackTrace();
 		}
@@ -87,12 +105,24 @@ public class App {
 		}
 	}
 
-	// Excel Database generation class
+	// Access Database generation class
 	public void AccessAgent(/*String connectioString*/) throws InterruptedException {
 		String connectionString = AccessDataMigrationCredentials.databaseConnectionURL;
 		AccessDataMigrationUtils adm = new AccessDataMigrationUtils();
 		try{
 			adm.AccessDatabaseManagerAgent(connectionString);
+		} catch (Exception e) {   
+			e.printStackTrace();
+
+		}
+	}
+
+	// Access Database generation class
+	public void SSMSAgent(/*String connectioString*/) throws InterruptedException {
+		Connection con = SSMSDataMigrationCredentials.getSSMSConnection();
+		SSMSDataMigrationUtils sdm = new SSMSDataMigrationUtils();
+		try{
+			sdm.SSMSDatabaseManagerAgent(con);
 		} catch (Exception e) {   
 			e.printStackTrace();
 

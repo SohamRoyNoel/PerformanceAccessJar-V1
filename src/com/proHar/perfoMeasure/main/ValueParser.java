@@ -4,6 +4,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -97,7 +98,11 @@ public class ValueParser {
 					Date date = new Date();
 					DateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 					String stringDate = sdf.format(date);
-					createValueString = testCaseId+","+appId+","+pageId+","+elementHolder.get("name").toString()+","+durations+","+stringDate+System.lineSeparator();
+					
+					Calendar cal = Calendar.getInstance(); 
+					java.sql.Timestamp timestamp = new java.sql.Timestamp(cal.getTimeInMillis());
+					
+					createValueString = testCaseId+","+appId+","+pageId+","+elementHolder.get("name").toString()+","+durations+","+stringDate+","+timestamp+System.lineSeparator();
 					resHolder.add(createValueString);
 				}                 
 			}
@@ -241,7 +246,10 @@ public class ValueParser {
 			Date date = new Date();
 			DateFormat sdf = new SimpleDateFormat("MM/dd/yyyy hh:mm a");
 			String stringDate = sdf.format(date);
-			createValueString = testCaseId+","+appId+","+pageId+","+Unload+","+Redirect+","+AppCache+","+TTFB+","+Processing+","+Dom_Interactive+","+Dom_Complete+","+Content_load+","+Page_load+","+stringDate+System.lineSeparator();
+			
+			Calendar cal = Calendar.getInstance(); 
+			java.sql.Timestamp timestamp = new java.sql.Timestamp(cal.getTimeInMillis());
+			createValueString = testCaseId+","+appId+","+pageId+","+Unload+","+Redirect+","+AppCache+","+TTFB+","+Processing+","+Dom_Interactive+","+Dom_Complete+","+Content_load+","+Page_load+","+stringDate+","+timestamp+System.lineSeparator();
 
 			navHolder.add(createValueString);
 		}catch (NullPointerException e) {
